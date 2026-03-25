@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem RAB Multi Proyek</title>
+
+<style>
+:root{
+  --primary:#1f2937;
+  --accent:#2563eb;
+  --bg:#f3f6fb;
+  --card:#ffffff;
+  --text:#111827;
+  --muted:#6b7280;
+}
+body{
+  margin:0;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+.header{
+  background:var(--primary);
+  color:#fff;
+  padding:16px;
+  text-align:center;
+  font-weight:600;
+  letter-spacing:.5px;
+}
+.container{
+  padding:16px;
+  max-width:700px;
+  margin:auto;
+}
+.card{
+  background:var(--card);
+  padding:18px;
+  border-radius:12px;
+  margin-bottom:16px;
+  box-shadow:0 6px 15px rgba(0,0,0,0.05);
+}
+
+h3{
+  margin-top:0;
+  font-size:14px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+/* INPUT STYLE PROFESIONAL */
+input,select{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid #d1d5db;
+  background:#f9fafb;
+  font-size:14px;
+  transition:all .2s ease;
+}
+
+input::placeholder{
+  color:#9ca3af;
+  font-size:13px;
+}
+
+input:focus, select:focus{
+  outline:none;
+  border-color:var(--accent);
+  background:#fff;
+  box-shadow:0 0 0 2px rgba(37,99,235,0.15);
+}
+
+button{
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+  letter-spacing:.3px;
+}
+
+.btn{
+  background:var(--accent);
+  color:#fff;
+}
+
+.btn:hover{
+  opacity:.9;
+}
+
+.item{
+  border-bottom:1px solid #e5e7eb;
+  padding:12px 0;
+  font-size:14px;
+}
+
+.item b{
+  font-size:15px;
+}
+
+.total{
+  background:var(--primary);
+  color:#fff;
+  padding:16px;
+  text-align:center;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  Sistem RAB Multi Proyek
+</div>
+
+<div class="container">
+
+<!-- PILIH / TAMBAH PROYEK -->
+<div class="card">
+  <h3>Manajemen Proyek</h3>
+  <input type="text" id="namaProyek" placeholder="Masukkan nama proyek (contoh: Pembangunan Rumah Tipe 36)">
+  <button class="btn" onclick="tambahProyek()">+ Tambah Proyek Baru</button>
+  <select id="pilihProyek" onchange="gantiProyek()"></select>
+</div>
+
+<!-- INPUT ITEM -->
+<div class="card">
+  <h3>Input Data Material / Pekerjaan</h3>
+  <input type="text" id="nama" placeholder="Nama material atau pekerjaan (contoh: Semen, Pasir, Tukang)">
+  <input type="number" id="harga" placeholder="Harga satuan (Rp)">
+  <input type="number" id="jumlah" placeholder="Volume / jumlah kebutuhan">
+  <button class="btn" onclick="tambahItem()">Tambah ke RAB</button>
+</div>
+
+<!-- LIST -->
+<div class="card" id="list"></div>
+
+<!-- TOTAL -->
+<div class="total">
+  Total Anggaran Proyek: <span id="total">Rp 0</span>
+</div>
+
+</div>
+
+<script>
+let proyekList={};
+let proyekAktif="";
+
+function tambahProyek(){
+  let nama=document.getElementById('namaProyek').value;
+  if(!nama)return alert('Isi nama proyek');
+  proyekList[nama]=[];
+  proyekAktif=nama;
+  updateDropdown();
+  render();
+}
+
+function updateDropdown(){
+  let select=document.getElementById('pilihProyek');
+  select.innerHTML='';
+  for(let p in proyekList){
+    select.innerHTML+=`<option value="${p}">${p}</option>`;
+  }
+  select.value=proyekAktif;
+}
+
+function gantiProyek(){
+  proyekAktif=document.getElementById('pilihProyek').value;
+  render();
+}
+
+function tambahItem(){
+  if(!proyekAktif)return alert('Pilih proyek dulu');
+
+  let nama=document.getElementById('nama').value;
+  let harga=parseInt(document.getElementById('harga').value);
+  let jumlah=parseInt(document.getElementById('jumlah').value);
+
+  if(!nama||!harga||!jumlah)return alert('Lengkapi data');
+
+  proyekList[proyekAktif].push({nama,harga,jumlah});
+  render();
+}
+
+function render(){
+  let list=document.getElementById('list');
+  let total=0;
+  list.innerHTML='';
+
+  if(!proyekAktif)return;
+
+  proyekList[proyekAktif].forEach((item,i)=>{
+    let subtotal=item.harga*item.jumlah;
+    total+=subtotal;
+
+    list.innerHTML+=`
+    <div class="item">
+      <b>${item.nama}</b><br>
+      Rp ${item.harga} x ${item.jumlah} = <b>Rp ${subtotal}</b>
+      <br>
+      <button onclick="hapusItem(${i})">Hapus</button>
+    </div>`;
+  });
+
+  document.getElementById('total').innerText='Rp '+total;
+}
+
+function hapusItem(i){
+  proyekList[proyekAktif].splice(i,1);
+  render();
+}
+</script>
+
+</body>
+</html>
